@@ -11,6 +11,14 @@ const PORT = 8080;
 
 app.use(cors());
 
-console.log("checking for env", process.env.DATABASE_URL)
+app.get("/api/products", async (req, res) => {
+    console.log("hi123");
+    const products = await prisma.product.findMany()
+    res.json(products)
+    console.log(products);
+   
+})
+
+
 
 app.listen(PORT, () => console.log(`Hola! Server is running on port ${PORT}`));
