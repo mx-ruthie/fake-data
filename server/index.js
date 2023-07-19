@@ -28,20 +28,27 @@ app.get("/api/products", async (req, res) => {
 
 app.get("/api/products/:id", async (req, res) => {
   try {
-    const { id } = req.body;
+    const productId = req.params.id;
+
     const product = await prisma.product.findUnique({
       where: {
-        id,
+        id: productId,
       },
     });
-    res.status(200).json(product);
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, product });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Product does not exist." });
+    res.status(500).json({ success: false, error: "Failed to retrieve product" });
   }
-})
+});
 
-app.post("/api/products", async (req, res) => {
+
+app.post("/api/products/:id", async (req, res) => {
   try {
     const { name, description, imageUrl } = req.body;
 
