@@ -20,9 +20,26 @@ app.get("/api/products", async (req, res) => {
     console.log(products);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Failed to retrieve products" });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to retrieve products" });
   }
 });
+
+app.get("/api/products/:id", async (req, res) => {
+  try {
+    const { id } = req.body;
+    const product = await prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+    res.status(200).json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Product does not exist." });
+  }
+})
 
 app.post("/api/products", async (req, res) => {
   try {
@@ -47,6 +64,36 @@ app.post("/api/products", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: "Failed to create product" });
+  }
+});
+
+app.put("/api/products/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { name, description, imageUrl } = req.body;
+
+    console.log("i'm the body", req.body);
+    if (!name || !description || !imageUrl) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Missing product field" });
+    }
+
+    const product = await prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        name,
+        description,
+        imageUrl,
+      },
+    });
+
+    res.status(200).json({ success: true, product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Failed to update product" });
   }
 });
 
