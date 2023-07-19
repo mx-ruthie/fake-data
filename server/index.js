@@ -20,11 +20,10 @@ app.get("/api/products", async (req, res) => {
     console.log(products);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to retrieve products" });
+    res.status(500).json({ success: false, products: [] });
   }
 });
+
 
 app.get("/api/products/:id", async (req, res) => {
   try {
@@ -37,7 +36,7 @@ app.get("/api/products/:id", async (req, res) => {
     });
 
     if (!product) {
-      return res.status(404).json({ success: false, error: "Product not found" });
+      return res.status(404).json({ success: false, error: "Product does not exist" });
     }
 
     res.status(200).json({ success: true, product });
@@ -56,7 +55,7 @@ app.post("/api/products/:id", async (req, res) => {
     if (!name || !description || !imageUrl) {
       return res
         .status(400)
-        .json({ success: false, error: "Missing product field" });
+        .json({ success: false, error: "Request missing a product field" });
     }
 
     const product = await prisma.product.create({
@@ -74,6 +73,7 @@ app.post("/api/products/:id", async (req, res) => {
   }
 });
 
+
 app.put("/api/products/:id", async (req, res) => {
   try {
     const productId = req.params.id;
@@ -83,10 +83,20 @@ app.put("/api/products/:id", async (req, res) => {
     if (!name || !description || !imageUrl) {
       return res
         .status(400)
-        .json({ success: false, error: "Missing product field" });
+        .json({ success: false, error: "Request missing a product field" });
     }
 
-    const product = await prisma.product.update({
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: "Product does not exist" });
+    }
+
+    const updatedProduct = await prisma.product.update({
       where: {
         id: productId,
       },
@@ -97,11 +107,40 @@ app.put("/api/products/:id", async (req, res) => {
       },
     });
 
-    res.status(200).json({ success: true, product });
+    res.status(200).json({ success: true, product: updatedProduct });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: "Failed to update product" });
   }
 });
+
+
+app.delete("/api/products/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: "Product does not exist" });
+    }
+
+    await prisma.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    res.status(200).json({ success: true, product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: "Failed to delete product" });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Hola! Server is running on port ${PORT}`));
