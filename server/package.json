@@ -2,19 +2,31 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js", 
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon -r ./tracing.cjs index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@honeycombio/opentelemetry-node": "^0.5.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.38.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.41.0",
+    "@opentelemetry/instrumentation": "^0.41.0",
+    "@opentelemetry/resources": "^1.15.0",
+    "@opentelemetry/sdk-trace-base": "^1.15.0",
+    "@opentelemetry/sdk-trace-node": "^1.15.0",
+    "@opentelemetry/semantic-conventions": "^1.15.0",
     "@prisma/client": "^5.0.0",
+    "@prisma/instrumentation": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "nodemon": "^3.0.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0"
   }
 }
